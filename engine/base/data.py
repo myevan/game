@@ -7,7 +7,7 @@ class Scheme:
         self.__flags = flags
 
     def __repr__(self):
-        return f"{self.__class__.__name__}<{self.__name}>({' '.join(f'{key}={value}' for key, value in zip(self.__field_names, self.__field_types))})"
+        return f"{self.__class__.__name__}<{self.__name}>({', '.join(f'{key}={value}' for key, value in zip(self.__field_names, self.__field_types))})"
 
     @property
     def name(self):
