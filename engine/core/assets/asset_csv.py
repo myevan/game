@@ -18,16 +18,6 @@ class CSVError(Error):
     def __str__(self):
         return f"{self.__class__.__name__}<{self.name}>{self.args}: {self.path}"
 
-class CSVCellError(CSVError):
-    def __init__(self, name, path, row, col, value, memo):
-        CSVError.__init__(self, name, path)
-        self.row = row
-        self.col = col
-        self.value = value
-        self.memo = memo
-
-    def __str__(self):
-        return f"{self.__class__.__name__}<{self.name}>([{self.row}][{self.col}]='{self.value}', '{self.memo}'):{self.path}"
 
 class CSVRecord(Record):
     pass
