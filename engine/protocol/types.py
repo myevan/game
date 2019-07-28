@@ -9,18 +9,19 @@ class float_t(db.Float):
         self.prefix = 'f32'
 
 class uint_t(db.Integer):
-    def __init__(self, prefix, max, *args, **kwargs):
-        db.Integer.__init__(self, 0, max, **kwargs)
-        self.prefix = prefix
+    def __init__(self, *args, **kwargs):
+        db.Integer.__init__(self, *args, **kwargs)
 
 class int_t(db.Integer):
-    def __init__(self, prefix, min, max, *args, **kwargs):
-        db.Integer.__init__(self, min, max, **kwargs)
-        self.prefix = prefix
+    def __init__(self, *args, **kwargs):
+        db.Integer.__init__(self, *args, **kwargs)
 
 class char_t(int_t):
     def __init__(self, *args, **kwargs):
-        int_t.__init__(self, 'sz', 0, 0x7F, **kwargs)
+        int_t.__init__(self, *args, **kwargs)
+        self.prefix = 'sz'
+        self.min = 0
+        self.max = 0x7F
 
     def convert(self, value):
         ret_value = str(value)
@@ -36,38 +37,58 @@ class char_t(int_t):
 
 class int8_t(int_t):
     def __init__(self, *args, **kwargs):
-        int_t.__init__(self, 'i8', -0x80, 0x7F, *args, **kwargs)
+        int_t.__init__(self, *args, **kwargs)
+        self.prefix = 'i8'
+        self.min = -0x80
+        self.max = +0x7F
 
     def convert(self, value):
-        return int_t.convert(value)
+        return int_t.convert(self, value)
 
 class int16_t(int_t):
     def __init__(self, *args, **kwargs):
-        int_t.__init__(self, 'i16', -0x8000, 0x7FFF, *args, **kwargs)
+        int_t.__init__(self, *args, **kwargs)
+        self.prefix='i16'
+        self.min = -0x8000
+        self.max = +0x7FFF
 
 class int32_t(int_t):
     def __init__(self, *args, **kwargs):
-        int_t.__init__(self, 'i32', -0x80000000, 0x7FFFFFFF, *args, **kwargs)
+        int_t.__init__(self, *args, **kwargs)
+        self.prefix='i32'
+        self.min = -0x80000000
+        self.max = +0x7FFFFFFF
 
 class int64_t(int_t):
     def __init__(self, *args, **kwargs):
-        int_t.__init__(self, 'i64', -0x8000000000000000, 0x7FFFFFFFFFFFFFFF, *args, **kwargs)
+        int_t.__init__(self, *args, **kwargs)
+        self.prefix='i64'
+        self.min = -0x8000000000000000
+        self.max = +0x7FFFFFFFFFFFFFFF
 
 class uint8_t(uint_t):
     def __init__(self, *args, **kwargs):
-        uint_t.__init__(self, 'u8', 0xFF, *args, **kwargs)
+        uint_t.__init__(self, *args, **kwargs)
+        self.prefix = 'u8'
+        self.max = 0xFF
 
 class uint16_t(uint_t):
     def __init__(self, *args, **kwargs):
-        uint_t.__init__(self, 'u16', 0xFFFF, *args, **kwargs)
+        uint_t.__init__(self, *args, **kwargs)
+        self.prefix = 'u16'
+        self.max = 0xFFFF
 
 class uint32_t(uint_t):
     def __init__(self, *args, **kwargs):
-        uint_t.__init__(self, 'u32', 0xFFFFFFFF, *args, **kwargs)
+        uint_t.__init__(self, *args, **kwargs)
+        self.prefix = 'u32'
+        self.max = 0xFFFFFFFF
 
 class uint64_t(uint_t):
     def __init__(self, *args, **kwargs):
-        uint_t.__init__(self, 'u64', 0xFFFFFFFFFFFFFFFF, *args, **kwargs)
+        uint_t.__init__(self, *args, **kwargs)
+        self.prefix = 'u64'
+        self.max = 0xFFFFFFFFFFFFFFFF
 
 class time_t(uint32_t):
     pass
