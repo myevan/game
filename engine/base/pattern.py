@@ -37,7 +37,8 @@ class KeySingleton:
     def __init__(self, key, *args, **kwargs):
         self.__key = key
 
-    def get_key(self):
+    @property
+    def key(self):
         return self.__key
 
 class Factory:
@@ -78,5 +79,6 @@ class Cache:
     def __repr__(self):
         return f"{self.__class__.__name__}({self.__key})"
 
-    def get_key(self):
+    @property
+    def key(self):
         return self.__key

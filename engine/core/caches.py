@@ -5,10 +5,12 @@ class FileCache(Cache):
         Cache.__init__(self, key)
         self.__data = open(key, 'rb').read()
 
-    def get_path(self):
-        return self.get_key()
+    @property
+    def path(self):
+        return self.key
 
-    def get_data(self):
+    @property
+    def data(self):
         return self.__data
 
 
@@ -19,8 +21,10 @@ class TableCache(Cache):
         Cache.__init__(self, key)
         self.__table = TableFactory.get().create(path=key)
 
-    def get_path(self):
-        return self.get_key()
+    @property
+    def path(self):
+        return self.key
 
-    def get_table(self):
+    @property
+    def table(self):
         return self.__table
