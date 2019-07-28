@@ -1,3 +1,5 @@
+import os
+
 from jinja2 import Template
 
 from ...base.data import Scheme
@@ -50,10 +52,10 @@ class SchemeWrapper:
         self.fields = [FieldWarpper(scheme, index) for index in range(len(scheme.field_names))]
 
 class Application:
-    def run(self, schemes, template_path, dst_scheme_path):
+    def run(self, schemes, dst_template_path, dst_scheme_path):
         dst_name = os.path.splitext(os.path.basename(dst_scheme_path))[0]
 
-        template_cache = FileCache.get(template_path)
+        template_cache = FileCache.get(dst_template_path)
         template = Template(template_cache.get_data().decode('utf-8'))
         out_text = template.render(
             schemes=[SchemeWrapper(scheme) for scheme in schemes], 
