@@ -4,10 +4,18 @@ from ..base.pattern import KeySingleton, Cache
 from ..base.error import Error
 
 class PrimitiveError(Error):
-    def __init__(self, name, value, limit):
+    def __init__(self, name, value, memo):
         Error.__init__(self, name)
-        self.value = value
-        self.limit = limit
+        self.__value = value
+        self.__memo = memo
+
+    @property
+    def value(self):
+        return self.__value
+
+    @property
+    def memo(self):
+        return self.__memo
 
 class Primitive:
     __seq = 0
@@ -93,8 +101,8 @@ class Integer(Primitive):
 
     def convert(self, value):
         ret_value = int(value)
-        if ret_value < self.min: raise PrimitiveError('UNDERFLOW', ret_value, self.min)
-        if ret_value > self.max: raise PrimitiveError('OVERFLOW', ret_value, self.max)
+        if ret_value < self.min: raise PrimitiveError('UNDERFLOW', ret_value, f"< {self.min}")
+        if ret_value > self.max: raise PrimitiveError('OVERFLOW', ret_value, f"> {self.max}")
         return ret_value
 
 class Float(Primitive):
