@@ -35,7 +35,11 @@ class Primitive:
             if self.__pk:
                 yield 'pk=True'
 
-        return f"{self.__class__.__name__}<{self.__model_cls.__name__}.{self.__name}>({', '.join(gen_attrs())})"
+        attrs = ', '.join(gen_attrs())
+        if self.__model_cls:
+            return f"{self.__class__.__name__}<{self.__model_cls.__name__}.{self.__name}>({attrs})"
+        else:
+            return f"{self.__class__.__name__}({attrs})"
 
     def bind(self, model_cls, name):
         self.__model_cls = model_cls
@@ -82,10 +86,10 @@ class Primitive:
         return self.__pk
 
 class Integer(Primitive):
-    def __init__(self, min=-0x8000000000000000, max=0x7FFFFFFFFFFFFFF, **kwargs):
-        Primitive.__init__(self, 'i', 0, **kwargs)
-        self.min = min
-        self.max = max
+    def __init__(self, *args, **kwargs):
+        Primitive.__init__(self, 'i', 0, *args, **kwargs)
+        self.min = -0x800000000000000
+        self.max = +0x7FFFFFFFFFFFFFF
 
     def convert(self, value):
         ret_value = int(value)
