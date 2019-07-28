@@ -50,9 +50,7 @@ class SchemeWrapper:
         self.fields = [FieldWarpper(scheme, index) for index in range(len(scheme.field_names))]
 
 class Application:
-    def run(self, src_scheme_path, template_path, dst_scheme_path):
-        schemes = list(self.gen_py_schemes(src_scheme_path))
-
+    def run(self, schemes, template_path, dst_scheme_path):
         dst_name = os.path.splitext(os.path.basename(dst_scheme_path))[0]
 
         template_cache = FileCache.get(template_path)
@@ -68,7 +66,7 @@ class Application:
         ns = dict(engine=engine)
         exec(open(src_scheme_path).read(), ns)
         bases = [value for key, value in ns.items() 
-            if type(value) is engine.core.database.DeclMeta and value != engine.protocol.Base]
+            if type(value) is engine.core.data.DeclMeta and value != engine.protocol.Base]
 
         for base in bases:
             yield Scheme(base.__name__, base.get_field_names(), base.get_field_types())
@@ -85,6 +83,8 @@ if __name__ == '__main__':
     @click.option('--dst-scheme-path', type=str, default='examples/scheme.h')
     @click.option('--src-scheme-path', type=str, default='examples/scheme.py')
     def run(dst_template_path, dst_scheme_path, src_scheme_path):
-        Application().run(src_scheme_path, dst_template_path, dst_scheme_path)
+        app = Application()
+        schemes = list(app.gen_py_schemes(src_scheme_path))
+        app.run(schemes, dst_template_path, dst_scheme_path)
 
     run()
