@@ -11,10 +11,14 @@ class float_t(db.Float):
 class uint_t(db.Integer):
     def __init__(self, *args, **kwargs):
         db.Integer.__init__(self, *args, **kwargs)
+        self.min = 0
+        self.max = 0xFFFFFFFF
 
 class int_t(db.Integer):
     def __init__(self, *args, **kwargs):
         db.Integer.__init__(self, *args, **kwargs)
+        self.min = -0x80000000
+        self.max = +0x7FFFFFFF
 
 class char_t(int_t):
     def __init__(self, *args, **kwargs):
@@ -26,14 +30,15 @@ class char_t(int_t):
     def convert(self, value):
         ret_value = str(value)
         enc_value = ret_value.encode('utf-8')
-        limit = self.count - 1
-        if len(enc_value) > limit: 
-            clamp = enc_value[:limit].decode('utf-8', 'ignore')
+        enc_len = len(enc_value)
+        enc_max = self.count - 1
+        if enc_len > enc_max: 
+            enc_clamp = enc_value[:enc_max]
+            clamp = enc_clamp.decode('utf-8', 'ignore')
             over = ret_value[len(clamp):]
-            raise db.PrimitiveError('OVERFLOW', f"{clamp}({over})", limit)
+            raise db.PrimitiveError('OVERFLOW', f"{clamp}({over})", f"len({enc_len + 1}) > cap({self.count})")
 
         return ret_value
-
 
 class int8_t(int_t):
     def __init__(self, *args, **kwargs):
@@ -70,24 +75,28 @@ class uint8_t(uint_t):
     def __init__(self, *args, **kwargs):
         uint_t.__init__(self, *args, **kwargs)
         self.prefix = 'u8'
+        self.min = 0
         self.max = 0xFF
 
 class uint16_t(uint_t):
     def __init__(self, *args, **kwargs):
         uint_t.__init__(self, *args, **kwargs)
         self.prefix = 'u16'
+        self.min = 0
         self.max = 0xFFFF
 
 class uint32_t(uint_t):
     def __init__(self, *args, **kwargs):
         uint_t.__init__(self, *args, **kwargs)
         self.prefix = 'u32'
+        self.min = 0
         self.max = 0xFFFFFFFF
 
 class uint64_t(uint_t):
     def __init__(self, *args, **kwargs):
         uint_t.__init__(self, *args, **kwargs)
         self.prefix = 'u64'
+        self.min = 0
         self.max = 0xFFFFFFFFFFFFFFFF
 
 class time_t(uint32_t):
