@@ -64,6 +64,43 @@ class Table:
     def scheme(self):
         return self.__scheme
 
+class Field:
+    def __init__(self, value, record=None, col=None):
+        self.__value = value
+        self.__record = record
+        self.__col = col
+
+    def __repr__(self):
+        tail = f":{self.__record.src.table.name}:{self.notation}" if self.__record and self.__record.src else ''
+        return f"{self.__class__.__name__}({self.__value}){tail}"
+
+    @property
+    def value(self):
+        return self.__value
+
+    @property
+    def record(self):
+        return self.__record
+
+    @property
+    def col(self):
+        return self.__col
+
+    @property
+    def notation(self):
+        col = self.__col + 1
+        prefix = ''
+        while col:
+            remain = col % 26
+            if remain == 0:
+                remain = 26
+
+            prefix = chr(ord('A') + remain - 1) + prefix
+            col = int((col - 1) / 26)
+
+        row = self.__record.row + 1 + 1 # excel base(1) + head(1)
+        return f"${prefix}{row}"
+
 class Record:
     def __init__(self, fields, table=None, row=None, src=None):
         self.__fields = fields
@@ -72,7 +109,8 @@ class Record:
         self.__src = src
 
     def __repr__(self):
-        tail = f":{self.__src.__table.name}:{self.__src.row}" if self.__src else ''
+        src = self.__src
+        tail = f":{src.table.name}:{src.notation}" if src else ''
         return f"{self.__class__.__name__}({self.__fields}){tail}"
 
     def bind_table(self, table, row):
@@ -81,6 +119,9 @@ class Record:
 
     def bind_source(self, src):
         self.__src = src
+
+    def get_field(self, col):
+        return Field(self.__fields[col], self, col)
 
     @property
     def fields(self):
@@ -97,6 +138,10 @@ class Record:
     @property
     def src(self):
         return self.__src
+
+    @property
+    def notation(self):
+        return f"${self.__row + 1 + 1}" # excel base(1) + head(1)
 
 if __name__ == '__main__':
     scheme = Scheme('Example', ['id', 'name'], [int, str])
