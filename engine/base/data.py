@@ -45,6 +45,9 @@ class Table:
     def __repr__(self):
         return f"{self.__class__.__name__}<{self.__name}>({','.join(self.__heads)})"
 
+    def bind(self, scheme):
+        self.__scheme = scheme
+
     @property
     def name(self):
         return self.__name
@@ -69,16 +72,8 @@ class Record:
         self.__src = src
 
     def __repr__(self):
-        tail = f": <{self.__src.__table.name()}:{self.__src.row()}>" if self.__src else ''
+        tail = f":{self.__src.__table.name}:{self.__src.row}" if self.__src else ''
         return f"{self.__class__.__name__}({self.__fields}){tail}"
-
-    @property
-    def fields(self):
-        return self.__fields
-
-    @property
-    def row(self):
-        return self.__row
 
     def bind_table(self, table, row):
         self.__table = table
@@ -86,6 +81,22 @@ class Record:
 
     def bind_source(self, src):
         self.__src = src
+
+    @property
+    def fields(self):
+        return self.__fields
+
+    @property
+    def table(self):
+        return self.__table
+
+    @property
+    def row(self):
+        return self.__row
+
+    @property
+    def src(self):
+        return self.__src
 
 if __name__ == '__main__':
     scheme = Scheme('Example', ['id', 'name'], [int, str])
