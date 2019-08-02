@@ -48,6 +48,9 @@ class Table:
     def bind(self, scheme):
         self.__scheme = scheme
 
+    def zips(self, cls):
+        return [zip(self.__heads, record) for record in self.__records]
+
     @property
     def name(self):
         return self.__name
@@ -88,7 +91,17 @@ class Field:
 
     @property
     def notation(self):
-        col = self.__col + 1
+        dst_heads = self.__record.table.scheme.field_names
+        src_heads = self.__record.src.table.heads
+        dst_head = dst_heads[self.__col]
+        src_head = src_heads[self.__col]
+        if dst_head == src_head:
+            col = self.__col
+        else:
+            col = src_heads.index(dst_head)
+
+        col += 1
+
         prefix = ''
         while col:
             remain = col % 26
@@ -98,7 +111,7 @@ class Field:
             prefix = chr(ord('A') + remain - 1) + prefix
             col = int((col - 1) / 26)
 
-        row = self.__record.row + 1 + 1 # excel base(1) + head(1)
+        row = self.__record.src.row + 1 + 1 # excel base(1) + head(1)
         return f"${prefix}{row}"
 
 class Record:
@@ -111,7 +124,7 @@ class Record:
     def __repr__(self):
         src = self.__src
         tail = f":{src.table.name}:{src.notation}" if src else ''
-        return f"{self.__class__.__name__}({self.__fields}){tail}"
+        return f"{self.__class__.__name__}({list(zip(self.__table.heads, self.__fields))}){tail}"
 
     def bind_table(self, table, row):
         self.__table = table
@@ -142,6 +155,45 @@ class Record:
     @property
     def notation(self):
         return f"${self.__row + 1 + 1}" # excel base(1) + head(1)
+
+class Relation:
+    def __init__(self, src_keys, dst_keys, src_cond="", dst_cond=""):
+        self.__src_keys = src_keys
+        self.__dst_keys = dst_keys
+        self.__src_cond = src_cond
+        self.__dst_cond = dst_cond
+
+    @property
+    def src_key(self):
+        return self.__src_keys[0]
+
+    @property
+    def dst_key(self):
+        return self.__dst_keys[0]
+
+    @property
+    def src_keys(self):
+        return self.__src_keys
+
+    @property
+    def dst_keys(self):
+        return self.__dst_keys
+
+    @property
+    def src_cond(self):
+        return self.__src_cond
+
+    @property
+    def dst_cond(self):
+        return self.__dst_cond
+
+class RelationManager:
+    def load(self, relations):
+        self._relations = relations
+
+    @property
+    def relations(self):
+        return self._relations
 
 if __name__ == '__main__':
     scheme = Scheme('Example', ['id', 'name'], [int, str])
