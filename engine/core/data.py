@@ -120,8 +120,8 @@ class String(Primitive):
         return str(value)
 
 class DeclMeta(type):
-    def __new__(meta, cls_name, bases, cls_dict):
-        new_cls = type.__new__(meta, cls_name, bases, cls_dict)
+    def __new__(meta, name, bases, attrs):
+        new_cls = type.__new__(meta, name, bases, attrs)
 
         field_pairs = inspect.getmembers(new_cls, lambda m:isinstance(m, Primitive))
         for field_name, field_type in field_pairs:
