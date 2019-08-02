@@ -1,37 +1,43 @@
-from collections import OrderedDict
+class SingletonMeta(type):
+    def __new__(meta, cls_name, bases, attrs):
+        new_cls = type.__new__(meta, cls_name, bases, attrs)
+        new_cls._inst = new_cls()
+        return new_cls
 
-class Singleton:
-    __inst = None
-
+class Singleton(metaclass=SingletonMeta):
     @classmethod
     def get(cls):
-        if cls.__inst is None:
-            cls.__inst = cls()
-        return cls.__inst
+        return cls._inst
 
-class KeySingleton:
-    __insts = OrderedDict()
+from collections import OrderedDict
 
+class KeySingletonMeta(type):
+    def __new__(meta, cls_name, bases, attrs):
+        new_cls = type.__new__(meta, cls_name, bases, attrs)
+        new_cls._insts = OrderedDict()
+        return new_cls
+
+class KeySingleton(metaclass=KeySingletonMeta):
     @classmethod
     def get(cls, key):
-        return cls.__insts.get(key)
+        return cls._insts.get(key)
 
     @classmethod
     def get_keys(cls):
-        return cls.__insts.keys()
+        return cls._insts.keys()
 
     @classmethod
     def get_items(cls):
-        return cls.__insts.items()
+        return cls._insts.items()
 
     @classmethod
     def get_values(cls):
-        return cls.__insts.values()
+        return cls._insts.values()
 
     @classmethod
     def spawn(cls, key, *args, **kwargs):
         inst = cls(key, *args, **kwargs)
-        cls.__insts[key] = inst
+        cls._insts[key] = inst
         return inst
 
     def __init__(self, key, *args, **kwargs):
@@ -59,18 +65,25 @@ class Factory:
         else:
             return self.__def_create_inst(*args, **kwargs)
 
-class Cache:
-    __insts = dict()
 
+from collections import defaultdict
+
+class CacheMeta(type):
+    def __new__(meta, cls_name, bases, attrs):
+        new_cls = type.__new__(meta, cls_name, bases, attrs)
+        new_cls._insts = defaultdict()
+        return new_cls
+
+class Cache(metaclass=CacheMeta):
     @classmethod
     def get(cls, key):
-        inst = cls.__insts.get(key)
+        inst = cls._insts.get(key)
         return inst if inst else cls.load(key)
 
     @classmethod
     def load(cls, key):
         inst = cls(key)
-        cls.__insts[key] = inst
+        cls._insts[key] = inst
         return inst
 
     def __init__(self, key):
@@ -82,3 +95,33 @@ class Cache:
     @property
     def key(self):
         return self.__key
+
+
+if __name__ == '__main__':
+    class TestA1(Singleton):
+        def __init__(self):
+            self.name = 'A1'
+
+    class TestA2(Singleton):
+        def __init__(self):
+            self.name = 'A2'
+
+    class TestB1(KeySingleton):
+        pass
+
+    class TestB2(KeySingleton):
+        pass
+
+    class TestC(Cache):
+        def __init__(self, key):
+            print(key)
+            
+
+    TestA1.get()
+    print(TestA2.get().name)
+
+    TestB1.spawn('1')
+    print(TestB2.get('1'))
+
+    TestC.get('x')
+    TestC.get('x')
