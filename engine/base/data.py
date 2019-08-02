@@ -124,7 +124,7 @@ class Record:
     def __repr__(self):
         src = self.__src
         tail = f":{src.table.name}:{src.notation}" if src else ''
-        return f"{self.__class__.__name__}({list(zip(self.__table.heads, self.__fields))}){tail}"
+        return f"{self.__class__.__name__}({self.zip()}){tail}"
 
     def bind_table(self, table, row):
         self.__table = table
@@ -135,6 +135,10 @@ class Record:
 
     def get_field(self, col):
         return Field(self.__fields[col], self, col)
+
+    def zip(self):
+        return list(zip(self.__table.heads, self.__fields)) if self.__table else self.__fields
+        
 
     @property
     def fields(self):
