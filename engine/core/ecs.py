@@ -83,11 +83,10 @@ class World:
         self.__is_closing = False
 
     def open(self):
-        self.__evt_mgr.send(WorldOpened)
+        self.__is_closing = False
 
     def close(self):
         self.__is_closing = True
-        self.__evt_mgr.send(WorldClosing)
 
     def update(self):
         if self.__is_closing:
