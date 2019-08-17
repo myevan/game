@@ -132,12 +132,19 @@ class World:
     def get_entity(self, eid):
         return self.__eid_ents.get(eid)
 
+    def get_component(self, cid):
+        comps = self.__cid_comps.get(cid)
+        return comps.front
+
     def get_components(self, cid):
         return self.__cid_comps.get(cid)
 
 class System:
     def __init__(self, world):
         self.__world = world
+
+    def start(self):
+        pass
 
     def update(self):
         pass
@@ -154,6 +161,10 @@ class SystemManager:
     def add(self, system):
         self.systems.append(system)
 
+    def start(self):
+        for system in self.systems:
+            system.start()
+
     def update(self):
         if not self.world.update():
             return False
@@ -164,6 +175,8 @@ class SystemManager:
         return True
 
     def run(self):
+        self.start()
+
         while self.update():
             pass
 
