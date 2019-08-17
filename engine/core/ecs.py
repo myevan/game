@@ -40,7 +40,15 @@ class ComponentFactory(Factory, Singleton):
 
 class Entity:
     def __init__(self):
-        self.__comps = {}
+        self.__comps = dict()
+        self.__tags = set()
+        self.__name = ''
+
+    def set_name(self, name):
+        self.__name = name
+
+    def add_tag(self, tag):
+        self.__tags.add(tag)
 
     def reset(self):
         if self.__comps:
@@ -61,6 +69,13 @@ class Entity:
     def components(self):
         return self.__comps
 
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def tags(self):
+        return self.__tags
 
 class EntityPool(Pool):
     def __init__(self, ent_cap, **kwargs):
@@ -80,6 +95,8 @@ class World:
         self.__eid_ents = EntityPool(ent_cap)
         self.__cid_comps = defaultdict(LinkedList)
         self.__evt_mgr = EventManager()
+        self.__tagged_eids = defaultdict(set)
+        self.__named_eids = dict()
         self.__is_closing = False
 
     def open(self):
@@ -104,7 +121,7 @@ class World:
     def post_event(self, evt):
         self.__evt_mgr.post(evt)
 
-    def spawn(self, cids):
+    def spawn(self, cids, name='', tags=[]):
         eid = self.__eid_ents.alloc()
         ent = self.__eid_ents.get(eid)
         if not ent:
@@ -117,6 +134,15 @@ class World:
             ent.add(cid, comp)
             self.__cid_comps[cid].push_back(comp)
 
+        if name:
+            ent.set_name(name)
+            self.__named_eids[name] = eid 
+
+        if tags:
+            for tag in tags:
+                ent.add_tag(tag)
+                self.__tagged_eids[tag].add(eid)
+
         return eid
 
     def kill(self, eid):
@@ -125,6 +151,14 @@ class World:
             factory = ComponentFactory.get()
             for cid, comp in ent.components.items():
                 factory.destroy(cid, comp)
+
+            if ent.name:
+                del self.__named_eids[ent.name]
+
+            if ent.tags:
+                for tag in ent.tags:
+                    eids = self.__tagged_eids[tag] 
+                    eids.remove(eid)
 
             ent.reset()
             self.__eid_ents.free(eid)
@@ -138,6 +172,13 @@ class World:
 
     def get_components(self, cid):
         return self.__cid_comps.get(cid)
+
+    def get_named_eid(self, name):
+        return self.__named_eids.get(name)
+
+    def get_tagged_eids(self, tag):
+        return self.__tagged_eids[tag]
+
 
 class System:
     def __init__(self, world):
@@ -215,7 +256,7 @@ if __name__ == '__main__':
     ent1.get(CN.Transform).pos = Position(0, 0)
     print(eid1)
 
-    eid2 = world.spawn([CN.Identity, CN.Transform])
+    eid2 = world.spawn([CN.Identity, CN.Transform], name='TEST', tags=['TEST1', 'TEST2'])
     ent2 = world.get_entity(eid2)
     ent2.get(CN.Identity).name = 'B'
     ent2.get(CN.Transform).pos = Position(2, 0)
@@ -232,6 +273,8 @@ if __name__ == '__main__':
     ent4.get(CN.Transform).pos = Position(5, 0)
     print(eid4)
 
+    print(world.get_named_eid('TEST'))
+    print(world.get_tagged_eids('TEST1'))
     world.kill(eid2)
 
     test_system = TestSystem(world)
