@@ -1,22 +1,23 @@
-from ..core import data as db
+from ..core.data import Model
+from ..core.primitives import Integer, Float, String
 
-class Base(db.Model):
+class Base(Model):
     pass
 
-class float_t(db.Float):
+class float_t(Float):
     def __init__(self, *args, **kwargs):
-        db.Float.__init__(self, *args, **kwargs)
+        Float.__init__(self, *args, **kwargs)
         self.prefix = 'f32'
 
-class uint_t(db.Integer):
+class uint_t(Integer):
     def __init__(self, *args, **kwargs):
-        db.Integer.__init__(self, *args, **kwargs)
+        Integer.__init__(self, *args, **kwargs)
         self.min = 0
         self.max = 0xFFFFFFFF
 
-class int_t(db.Integer):
+class int_t(Integer):
     def __init__(self, *args, **kwargs):
-        db.Integer.__init__(self, *args, **kwargs)
+        Integer.__init__(self, *args, **kwargs)
         self.min = -0x80000000
         self.max = +0x7FFFFFFF
 
@@ -36,7 +37,7 @@ class char_t(int_t):
             enc_clamp = enc_value[:enc_max]
             clamp = enc_clamp.decode('utf-8', 'ignore')
             over = ret_value[len(clamp):]
-            raise db.PrimitiveError('OVERFLOW', f"{clamp}({over})", f"len({enc_len + 1}) > cap({self.count})")
+            raise PrimitiveError('OVERFLOW', f"{clamp}({over})", f"len({enc_len + 1}) > cap({self.count})")
 
         return ret_value
 
