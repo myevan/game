@@ -185,6 +185,14 @@ class LinkedList:
             self.__tail.kill_self()
             return ret
 
+    @property
+    def front(self):
+        return self.__head
+
+    @property
+    def back(self):
+        return self.__tail
+
 class Pool:
     def __init__(self, idx_cap, seq_cap=1000, seq_base=1000):
         self.chks = [None] * idx_cap
