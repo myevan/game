@@ -9,20 +9,6 @@ from ..components import Cell
 from ..components import ComponentNum as CN
 
 class TCRenderer(System, EventHandler):
-    VK_MAP = {
-        tcod.KEY_ESCAPE: KeyNum.Escape,
-        tcod.KEY_UP: KeyNum.Up,
-        tcod.KEY_DOWN: KeyNum.Down,
-        tcod.KEY_LEFT: KeyNum.Left,
-        tcod.KEY_RIGHT: KeyNum.Right,
-    }
-    CH_MAP = {
-        'k': KeyNum.Up,
-        'j': KeyNum.Down,
-        'h': KeyNum.Left,
-        'l': KeyNum.Right,
-    }
-
     def __init__(self, world):
         System.__init__(self, world)
 
@@ -47,6 +33,24 @@ class TCRenderer(System, EventHandler):
         for cell in self.world.get_components(CN.Cell):
             tcod.console_put_char(0, cell.col, cell.row, ' ', tcod.BKGND_NONE)
 
+
+class TCPlayer(System, EventHandler):
+    VK_MAP = {
+        tcod.KEY_ESCAPE: KeyNum.Escape,
+        tcod.KEY_UP: KeyNum.Up,
+        tcod.KEY_DOWN: KeyNum.Down,
+        tcod.KEY_LEFT: KeyNum.Left,
+        tcod.KEY_RIGHT: KeyNum.Right,
+    }
+
+    CH_MAP = {
+        'k': KeyNum.Up,
+        'j': KeyNum.Down,
+        'h': KeyNum.Left,
+        'l': KeyNum.Right,
+    }
+
+    def update(self):
         key = tcod.console_check_for_keypress()
         if key.vk != tcod.KEY_NONE:
             if key.vk == tcod.KEY_CHAR:
