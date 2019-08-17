@@ -24,14 +24,15 @@ class TCView(System, EventHandler):
         'l': KeyNum.Right,
     }
 
-    def __init__(self, world, title):
+    def __init__(self, world, title, width=80, height=60, fps=30, in_font_file_path=""):
         System.__init__(self, world)
 
-        env = Environment.get()
-        font_file_path = os.path.join(env.main_dir_path, 'arial10x10.png')
+        font_file_path = in_font_file_path if in_font_file_path else os.path.join(
+            Environment.get().main_dir_path, 'arial10x10.png')
+
         tcod.console_set_custom_font(font_file_path, flags=tcod.FONT_TYPE_GREYSCALE|tcod.FONT_LAYOUT_TCOD)
-        tcod.console_init_root(w=80, h=60, title=title, fullscreen=False)
-        tcod.sys_set_fps(30)
+        tcod.console_init_root(w=width, h=height, title=title, fullscreen=False)
+        tcod.sys_set_fps(fps)
 
     def update(self):
         if tcod.console_is_window_closed():
