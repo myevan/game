@@ -1,4 +1,6 @@
 from .data import Model
+
+from ..base.event import EventManager, EventHandler
 from ..base.pattern import Factory, Singleton, Pool
 from ..base.pattern import LinkedNode, LinkedList
 
@@ -74,8 +76,34 @@ class EntityPool(Pool):
 
 class World:
     def __init__(self, ent_cap):
+        EventManager.__init__(self)
         self.__eid_ents = EntityPool(ent_cap)
         self.__cid_comps = defaultdict(LinkedList)
+        self.__evt_mgr = EventManager()
+        self.__is_closing = False
+
+    def open(self):
+        self.__evt_mgr.send(WorldOpened)
+
+    def close(self):
+        self.__is_closing = True
+        self.__evt_mgr.send(WorldClosing)
+
+    def update(self):
+        if self.__is_closing:
+            return False
+
+        self.__evt_mgr.pump()
+        return True
+
+    def bind_event(self, num, handler):
+        self.__evt_mgr.bind(num, handler)
+
+    def send_event(self, evt):
+        self.__evt_mgr.send(evt)
+
+    def post_event(self, evt):
+        self.__evt_mgr.post(evt)
 
     def spawn(self, cids):
         eid = self.__eid_ents.alloc()
@@ -112,71 +140,84 @@ class System:
     def __init__(self, world):
         self.__world = world
 
+    def update(self):
+        pass
+
     @property
     def world(self):
         return self.__world
 
+class SystemManager:
+    def __init__(self, world):
+        self.world = world
+        self.systems = []
+
+    def add(self, system):
+        self.systems.append(system)
+
+    def update(self):
+        if not self.world.update():
+            return False
+
+        for system in self.systems:
+            system.update()
+
+        return True
+
+    def run(self):
+        while self.update():
+            pass
 
 if __name__ == '__main__':
-    from .data import Primitive
-    from .data import String
+    from enum import Enum
+    from .primitives import String, Position, Rotation
 
-    class Position(Primitive):
-        def __init__(self, *args, **kwargs):
-            Primitive.__init__(self, 'p', (0, 0, 0), *args, **kwargs)
+    class CN(Enum):
+        Identity = 1
+        Transform = 2
 
-    class Rotation(Primitive):
-        def __init__(self, *args, **kwargs):
-            Primitive.__init__(self, 'd', 0, *args, **kwargs) # 0: x+
+    class Identity(Component):
+        name = String()
 
     class Transform(Component):
         pos = Position()
         rot = Rotation()
 
-    class Identity(Component):
-        name = String()
-
     class TestSystem(System):
         def print_identities(self):
-            for iden in world.get_components(CN.IDENTITY):
+            for iden in world.get_components(CN.Identity):
                 print(f"{iden.eid}:{iden.name}")
 
         def print_transforms(self):
-            for trans in world.get_components(CN.TRANSFORM):
+            for trans in world.get_components(CN.Transform):
                 print(f"{trans.eid}:{trans.pos}")
 
-    from enum import Enum
-
-    class CN(Enum):
-        IDENTITY = 1
-        TRANSFORM = 2
-
     comp_factory = ComponentFactory.get()
-    comp_factory.register(CN.IDENTITY, Identity)
-    comp_factory.register(CN.TRANSFORM, Transform)
+    comp_factory.register(CN.Identity, Identity)
+    comp_factory.register(CN.Transform, Transform)
 
     world = World(100)
-    eid1 = world.spawn([CN.IDENTITY, CN.TRANSFORM])
+    eid1 = world.spawn([CN.Identity, CN.Transform])
     ent1 = world.get_entity(eid1)
-    ent1.get(CN.IDENTITY).name = 'A'
-    ent1.get(CN.TRANSFORM).pos = Position(0, 0)
+    ent1.get(CN.Identity).name = 'A'
+    ent1.get(CN.Transform).pos = Position(0, 0)
     print(eid1)
 
-    eid2 = world.spawn([CN.IDENTITY, CN.TRANSFORM])
+    eid2 = world.spawn([CN.Identity, CN.Transform])
     ent2 = world.get_entity(eid2)
-    ent2.get(CN.IDENTITY).name = 'B'
-    ent2.get(CN.TRANSFORM).pos = Position(2, 0)
+    ent2.get(CN.Identity).name = 'B'
+    ent2.get(CN.Transform).pos = Position(2, 0)
     print(eid2)
 
-    eid3 = world.spawn([CN.IDENTITY, CN.TRANSFORM])
+    eid3 = world.spawn([CN.Identity, CN.Transform])
     ent3 = world.get_entity(eid3)
-    ent3.get(CN.IDENTITY).name = 'C'
-    ent3.get(CN.TRANSFORM).pos = Position(7, 0)
+    ent3.get(CN.Identity).name = 'C'
+    ent3.get(CN.Transform).pos = Position(7, 0)
     print(eid3)
 
-    eid4 = world.spawn([CN.TRANSFORM])
+    eid4 = world.spawn([CN.Transform])
     ent4 = world.get_entity(eid4)
-    ent4.get(CN.TRANSFORM).pos = Position(5, 0)
+    ent4.get(CN.Transform).pos = Position(5, 0)
     print(eid4)
 
     world.kill(eid2)
