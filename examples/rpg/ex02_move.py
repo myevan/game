@@ -5,6 +5,7 @@ from engine.core.ecs import ComponentFactory
 comp_factory = ComponentFactory.get()
 
 from engine.core.components import ComponentNum as CN
+
 from engine.core.components import Cell
 comp_factory.register(CN.Cell, Cell)
 
@@ -34,8 +35,6 @@ class EXPlayer(System, EventHandler):
     def __init__(self, world, eid):
         System.__init__(self, world)
         ent = world.get_entity(eid)
-
-        from engine.core.components import ComponentNum as CN
         cell = ent.get(CN.Cell)
         self.eid = eid
         self.ent = ent
@@ -57,8 +56,13 @@ class EXPlayer(System, EventHandler):
                 self.move(+1, 0)
 
     def move(self, dx, dy):
-        self.cell.col += dx
-        self.cell.row += dy
+        src_row = self.cell.row
+        src_col = self.cell.col
+        dst_row = self.cell.row + dy
+        dst_col = self.cell.col + dx
+
+        self.cell.row = dst_row
+        self.cell.col = dst_col
 
 ex_player = EXPlayer(world, eid)
 world.bind_event(EventNum.Key, ex_player)
