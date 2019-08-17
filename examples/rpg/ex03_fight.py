@@ -21,14 +21,6 @@ from engine.core.events import EventNum
 world.bind_event(EventNum.App, tc_view)
 sys_mgr.add(tc_view)
 
-eid = world.spawn([CN.Cell])
-ent = world.get_entity(eid)
-cell = ent.get(CN.Cell)
-cell.row = 30
-cell.col = 40
-cell.val = '@'
-
-# EX02
 from engine.core.ecs import System, EventHandler
 class EXPlayer(System, EventHandler):
     def __init__(self, world, eid):
@@ -56,9 +48,23 @@ class EXPlayer(System, EventHandler):
             elif evt.key_num == KeyNum.Right:
                 self.cell.col += 1
 
+eid = world.spawn([CN.Cell])
+ent = world.get_entity(eid)
+cell = ent.get(CN.Cell)
+cell.row = 30
+cell.col = 40
+cell.val = '@'
 ex_player = EXPlayer(world, eid)
 world.bind_event(EventNum.Key, ex_player)
 sys_mgr.add(ex_player)
-# EX02_END
+
+# EX03
+eid = world.spawn([CN.Cell])
+ent = world.get_entity(eid)
+cell = ent.get(CN.Cell)
+cell.row = 30
+cell.col = 50
+cell.val = 'm'
+# EX03_END
 
 sys_mgr.run()
