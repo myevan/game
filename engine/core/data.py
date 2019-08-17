@@ -168,6 +168,8 @@ class Model(metaclass=DeclMeta):
             return tuple(getattr(self, name) for name in pk_names)
 
 if __name__ == '__main__':
+    from .primitives import String, Integer
+
     class User(Model):
         id = Integer(pk=True)
         name = String()
