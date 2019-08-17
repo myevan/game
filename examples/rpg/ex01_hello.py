@@ -5,6 +5,7 @@ from engine.core.ecs import ComponentFactory
 comp_factory = ComponentFactory.get()
 
 from engine.core.components import ComponentNum as CN
+
 from engine.core.components import Cell
 comp_factory.register(CN.Cell, Cell)
 
