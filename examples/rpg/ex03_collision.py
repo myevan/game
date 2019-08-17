@@ -1,3 +1,6 @@
+import logging
+logging.basicConfig(level=logging.INFO)
+
 from engine.core.environment import Environment
 Environment.get().set_main_file_path(__file__)
 
@@ -95,7 +98,7 @@ class EXPlayer(System, EventHandler):
         # EX03
         dst_eid = self.grid.get(dst_row, dst_col)
         if dst_eid != 0:
-            print("collision!")
+            logging.info("collision!")
             return
 
         self.grid.set(src_row, src_col, 0)
