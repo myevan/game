@@ -11,15 +11,15 @@ comp_factory.register(CN.Cell, Cell)
 from engine.core.ecs import World
 world = World(100)
 
-from engine.core.systems.system_tcod import TCView
-tc_view = TCView(world, "rpg")
-
 from engine.core.ecs import SystemManager
 sys_mgr = SystemManager(world)
 
+from engine.core.systems.system_tcod import TCView
+tc_view = TCView(world, "rpg")
+sys_mgr.add(tc_view)
+
 from engine.core.events import EventNum
 world.bind_event(EventNum.App, tc_view)
-sys_mgr.add(tc_view)
 
 eid = world.spawn([CN.Cell])
 ent = world.get_entity(eid)
