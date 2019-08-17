@@ -48,13 +48,17 @@ class EXPlayer(System, EventHandler):
             if evt.key_num == KeyNum.Escape:
                 self.world.close()
             elif evt.key_num == KeyNum.Up:
-                self.cell.row -= 1
+                self.move(0, -1)
             elif evt.key_num == KeyNum.Down:
-                self.cell.row += 1
+                self.move(0, +1)
             elif evt.key_num == KeyNum.Left:
-                self.cell.col -= 1
+                self.move(-1, 0)
             elif evt.key_num == KeyNum.Right:
-                self.cell.col += 1
+                self.move(+1, 0)
+
+    def move(self, dx, dy):
+        self.cell.col += dx
+        self.cell.row += dy
 
 ex_player = EXPlayer(world, eid)
 world.bind_event(EventNum.Key, ex_player)
