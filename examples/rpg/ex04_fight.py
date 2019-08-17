@@ -25,15 +25,15 @@ comp_factory.register(EN.Health, Health)
 from engine.core.components import Cell
 comp_factory.register(CN.Cell, Cell)
 
-from engine.core.components import CellGrid
-comp_factory.register(CN.CellGrid, CellGrid)
+from engine.core.components import NumGrid
+comp_factory.register(CN.NumGrid, NumGrid)
 
 from engine.core.ecs import World
 world = World(100)
 
-eid = world.spawn([CN.CellGrid])
+eid = world.spawn([CN.NumGrid])
 ent = world.get_entity(eid)
-grid = ent.get(CN.CellGrid)
+grid = ent.get(CN.NumGrid)
 grid.create(80, 60)
 
 from engine.core.ecs import SystemManager
@@ -51,7 +51,7 @@ class EXEntityManager(System, EventHandler):
     def __init__(self, world):
         System.__init__(self, world)
 
-        self.grid = self.world.get_component(CN.CellGrid)
+        self.grid = self.world.get_component(CN.NumGrid)
 
     def start(self):
         for cell in self.world.get_components(CN.Cell):
@@ -76,7 +76,7 @@ class EXPlayer(System, EventHandler):
         self.eid = eid
         self.ent = ent
         self.cell = cell
-        self.grid = self.world.get_component(CN.CellGrid)
+        self.grid = self.world.get_component(CN.NumGrid)
 
     def recv_event(self, evt):
         from engine.core.events import KeyEvent

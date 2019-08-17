@@ -6,12 +6,24 @@ from .primitives import Position, Rotation
 
 class ComponentNum(Enum):
     Cell = 1
-    CellGrid = 2
-    Transform = 3
-    Identity = 4
+    Transform = 2
+    Identity = 3
+    NumGrid = 9
     Custom = 10
 
-class CellGrid(Component):
+class Cell(Component):
+    row = Integer()
+    col = Integer()
+    val = Integer()
+
+class Transform(Component):
+    pos = Position()
+    rot = Rotation()
+
+class Identity(Component):
+    name = String()
+
+class NumGrid(Component):
     def __init__(self, *args, **kwargs):
         Component.__init__(self, *args, **kwargs)
         self.eids = []
@@ -28,16 +40,4 @@ class CellGrid(Component):
     def get(self, row, col):
         offset = self.width * row + col
         return self.eids[offset]
-
-class Cell(Component):
-    row = Integer()
-    col = Integer()
-    val = Integer()
-
-class Transform(Component):
-    pos = Position()
-    rot = Rotation()
-
-class Identity(Component):
-    name = String()
 
