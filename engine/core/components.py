@@ -6,6 +6,8 @@ from .primitives import Position, Rotation
 
 class ComponentNum(Enum):
     Cell = 1
+    Transform = 2
+    Identity = 3
 
 class Cell(Component):
     row = Integer()
